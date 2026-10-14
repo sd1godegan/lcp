@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#F7F5F0">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Cerdas Cermat PAI · SDN 1 Godegan</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
 <link rel="preconnect" href="https://script.google.com" crossorigin>
@@ -12,7 +13,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-/* ─── TOKENS ─── */
 :root{
   --bg:#F7F5F0;--surface:#FFFFFF;--surface-alt:#F6F3EC;--surface-sunken:#EDE9E0;
   --ink:#2B2D3A;--ink-soft:#565A6C;--ink-muted:#969AAC;--ink-faint:#C4C7D2;
@@ -50,7 +50,9 @@ body::after{
 button{font-family:inherit}
 :focus-visible{outline:3px solid var(--lavender-deep);outline-offset:2px}
 
-/* APP WRAP */
+/* ═══════════════════════════════════════════
+   APP SHELL
+   ═══════════════════════════════════════════ */
 .app-wrap{
   min-height:100vh;min-height:100dvh;
   display:flex;justify-content:center;align-items:flex-start;
@@ -62,234 +64,353 @@ button{font-family:inherit}
   position:relative;z-index:1;
 }
 .app{
-  width:100%;background:var(--surface);
-  border:1px solid var(--line);border-radius:var(--r-xl);
-  box-shadow:var(--sh-lg);overflow:hidden;
+  width:100%;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  box-shadow:var(--sh-lg);
+  overflow:hidden;
   animation:appIn .4s var(--t-bounce) both;
 }
 @keyframes appIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
 
-.app[data-screen="scr-welcome"],
-.app[data-screen="scr-result"]{max-width:560px;height:auto}
+/* ═══════════════════════════════════════════
+   WELCOME — TANPA BOX (Landing Page Style)
+   ═══════════════════════════════════════════ */
+.app[data-screen="scr-welcome"]{
+  max-width:640px;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  box-shadow:none;
+  overflow:visible;
+  height:auto;
+}
+.app[data-screen="scr-welcome"] .screen.active.welcome-pad{
+  background:transparent;
+  padding:clamp(24px,4vw,40px) clamp(20px,4vw,32px);
+  overflow:visible;
+}
+
+/* Setup & Result tetap card */
+.app[data-screen="scr-setup"],
+.app[data-screen="scr-result"]{
+  max-width:520px;
+  height:auto;
+  max-height:calc(100vh - 32px);
+  max-height:calc(100dvh - 32px);
+  display:flex;
+  flex-direction:column;
+}
 .app[data-screen="scr-quiz"]{
   max-width:min(1360px,100%);
   height:calc(100vh - 32px - var(--safe-t) - var(--safe-b));
   height:calc(100dvh - 32px - var(--safe-t) - var(--safe-b));
+  border-radius:var(--r-xl);
+  border:1px solid var(--line);
+  box-shadow:var(--sh-lg);
 }
 
-/* SCREENS */
 .screen{display:none}
 .screen.active{display:block;height:100%}
-.screen.active.welcome-pad,
+.screen.active.setup-pad,
 .screen.active.result-pad{
-  padding:clamp(20px,3vw,32px) clamp(20px,4vw,32px);
+  padding:clamp(24px,4vw,36px) clamp(22px,4vw,32px);
   overflow-y:auto;overflow-x:hidden;
   scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+  flex:1;min-height:0;
 }
-.screen.active.welcome-pad::-webkit-scrollbar,
+.screen.active.setup-pad::-webkit-scrollbar,
 .screen.active.result-pad::-webkit-scrollbar{width:6px}
-.screen.active.welcome-pad::-webkit-scrollbar-thumb,
+.screen.active.setup-pad::-webkit-scrollbar-thumb,
 .screen.active.result-pad::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+
 .screen.active > *{animation:screenIn .3s var(--t) both}
 @keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* WELCOME */
-.app[data-screen="scr-welcome"]{
-  max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);
-  display:flex;flex-direction:column;
-}
-.screen.active.welcome-pad{flex:1;min-height:0}
-
-.brand{text-align:center;margin-bottom:clamp(14px,2vw,20px)}
+/* ═══════════════════════════════════════════
+   WELCOME CONTENT
+   ═══════════════════════════════════════════ */
+.brand{text-align:center;margin-bottom:clamp(28px,5vw,40px)}
 .brand-logo{
-  width:clamp(48px,9vw,56px);height:clamp(48px,9vw,56px);
-  margin:0 auto clamp(10px,2vw,14px);border-radius:16px;
-  background:var(--lavender-deep);display:grid;place-items:center;
-  box-shadow:0 8px 20px rgba(139,125,196,.28);position:relative;
+  width:80px;height:80px;margin:0 auto 20px;
+  border-radius:24px;background:var(--lavender-deep);
+  display:grid;place-items:center;
+  box-shadow:0 14px 32px rgba(139,125,196,.32);
+  position:relative;
 }
-.brand-logo svg{width:55%;height:55%;color:#fff;stroke-width:2.2}
+.brand-logo svg{width:38px;height:38px;color:#fff;stroke-width:2}
 .brand-logo::after{
-  content:'';position:absolute;right:-4px;bottom:-4px;width:16px;height:16px;
-  border-radius:50%;background:var(--peach);border:3px solid var(--surface);
+  content:'';position:absolute;right:-6px;bottom:-6px;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--peach);border:3px solid var(--bg);
 }
-.brand-title{font-size:clamp(20px,3.6vw,26px);font-weight:800;letter-spacing:-.03em;line-height:1.15;color:var(--ink);margin-bottom:4px}
-.brand-sub{font-size:clamp(11.5px,2vw,13px);color:var(--ink-soft);font-weight:500}
+.brand-title{
+  font-size:clamp(26px,5vw,34px);font-weight:800;
+  letter-spacing:-.035em;line-height:1.1;
+  color:var(--ink);margin-bottom:8px;
+}
+.brand-sub{font-size:clamp(13px,2.2vw,14.5px);color:var(--ink-soft);font-weight:500}
 .brand-badge{
-  display:inline-flex;align-items:center;gap:6px;margin-top:8px;
-  padding:4px 11px 4px 7px;background:var(--mint-soft);
-  border:1px solid var(--mint);border-radius:var(--r-full);
-  font-size:9.5px;font-weight:700;letter-spacing:.05em;
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:14px;padding:6px 14px 6px 10px;
+  background:var(--mint-soft);border:1px solid var(--mint);
+  border-radius:var(--r-full);
+  font-size:10.5px;font-weight:700;letter-spacing:.05em;
   color:var(--mint-deep);text-transform:uppercase;
 }
 .brand-badge::before{
   content:'';width:6px;height:6px;border-radius:50%;
-  background:var(--mint-deep);animation:pulseDot 2s ease-in-out infinite;
+  background:var(--mint-deep);
+  animation:pulseDot 2s ease-in-out infinite;
 }
 @keyframes pulseDot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.6}}
 
 .section-label{
-  font-size:clamp(11px,1.8vw,12px);font-weight:600;
-  color:var(--ink-soft);text-align:center;
-  margin-bottom:clamp(8px,1.5vw,11px);
+  font-size:12px;font-weight:700;
+  color:var(--ink-muted);text-align:center;
+  margin-bottom:14px;letter-spacing:.06em;
+  text-transform:uppercase;
 }
 
-/* MODE PILLS */
-.mode-pills{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
-.mode-pill{
-  display:flex;align-items:center;justify-content:center;gap:7px;
-  padding:11px 10px;min-height:46px;
+/* ═══ DROPDOWN — ABSOLUTE & CLEAN ═══ */
+.dropdown{
+  position:relative;
+  margin-bottom:18px;
+  z-index:50;
+}
+.dropdown-trigger{
+  width:100%;display:flex;align-items:center;gap:14px;
+  padding:16px 18px;min-height:72px;
+  background:var(--surface);
+  border:1.5px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-sm);
+  cursor:pointer;transition:all var(--t);
+  text-align:left;font-family:inherit;color:inherit;
+  -webkit-tap-highlight-color:transparent;
+}
+.dropdown-trigger:hover{
+  border-color:var(--lavender-deep);
+  box-shadow:0 6px 16px rgba(139,125,196,.15);
+}
+.dropdown.open .dropdown-trigger{
+  border-color:var(--lavender-deep);
+  box-shadow:0 0 0 4px rgba(139,125,196,.13), 0 6px 16px rgba(139,125,196,.15);
+}
+
+.dropdown-avatar{
+  width:46px;height:46px;border-radius:50%;
+  display:grid;place-items:center;color:#fff;font-weight:800;
+  font-size:18px;flex-shrink:0;
+  background:var(--surface-sunken);
+  transition:background var(--t);
+}
+/* Placeholder — dashed ring, tidak boxy */
+.dropdown-avatar.placeholder{
+  background:transparent;
+  border:2px dashed var(--ink-faint);
+  color:var(--ink-muted);
+  font-size:20px;font-weight:600;
+}
+.dropdown.open .dropdown-avatar.placeholder,
+.dropdown-trigger:hover .dropdown-avatar.placeholder{
+  border-color:var(--lavender-deep);
+  color:var(--lavender-deep);
+}
+
+.dropdown-text{flex:1;min-width:0}
+.dropdown-name{
+  font-size:16px;font-weight:700;color:var(--ink);
+  letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.dropdown-name.placeholder{
+  color:var(--ink-muted);font-weight:500;font-size:15px;
+}
+.dropdown-school{
+  font-size:12.5px;color:var(--ink-soft);font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-top:2px;min-height:17px;
+}
+.dropdown-arrow{
+  width:20px;height:20px;color:var(--ink-muted);
+  transition:transform var(--t);flex-shrink:0;
+}
+.dropdown.open .dropdown-arrow{transform:rotate(180deg);color:var(--lavender-deep)}
+
+/* Menu — absolute, full width, sejajar trigger */
+.dropdown-menu{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  right:0;
+  background:var(--surface);
+  border:1.5px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-xl);
+  max-height:min(320px,50vh);
+  overflow-y:auto;
+  z-index:1000;
+  opacity:0;
+  transform:translateY(-8px);
+  pointer-events:none;
+  transition:opacity var(--t), transform var(--t);
+  scrollbar-width:thin;
+  padding:6px;
+}
+.dropdown-menu::-webkit-scrollbar{width:6px}
+.dropdown-menu::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.dropdown.open .dropdown-menu{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+/* Overflow fix — parent tidak clip saat dropdown buka */
+.app.dropdown-open .screen.active{overflow:visible}
+
+.dropdown-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;cursor:pointer;
+  transition:background var(--t-fast);
+  border:none;background:transparent;width:100%;
+  text-align:left;font-family:inherit;color:inherit;
+  -webkit-tap-highlight-color:transparent;
+  border-radius:var(--r-md);
+}
+.dropdown-item:hover,
+.dropdown-item:focus-visible{background:var(--lavender-soft);outline:none}
+.dropdown-item.selected{background:var(--lavender-soft)}
+.dropdown-item .dropdown-avatar{width:40px;height:40px;font-size:16px}
+.dropdown-item-text{flex:1;min-width:0}
+.dropdown-item-name{
+  font-size:14.5px;font-weight:700;color:var(--ink);
+  letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.dropdown-item-school{
+  font-size:12px;color:var(--ink-soft);margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.dropdown-item-check{
+  width:18px;height:18px;color:var(--lavender-deep);
+  flex-shrink:0;opacity:0;
+  transition:opacity var(--t-fast);
+}
+.dropdown-item.selected .dropdown-item-check{opacity:1}
+
+.dropdown-empty{
+  padding:24px 16px;text-align:center;
+  font-size:13px;color:var(--ink-muted);font-weight:500;
+}
+
+.welcome-actions{display:flex;gap:10px;margin-bottom:clamp(20px,3vw,28px)}
+.welcome-actions .btn{width:100%;min-height:54px;font-size:15px}
+
+.info-strip{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  padding:16px 12px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-sm);
+}
+.info-item{
+  display:flex;flex-direction:column;align-items:center;
+  gap:6px;position:relative;padding:0 4px;
+}
+.info-item:not(:last-child)::after{
+  content:'';position:absolute;right:0;top:15%;
+  height:70%;width:1px;background:var(--line);
+}
+.info-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center}
+.info-icon svg{width:16px;height:16px;stroke-width:2.4}
+.info-icon.i1{background:var(--lavender);color:var(--lavender-deep)}
+.info-icon.i2{background:var(--butter);color:var(--butter-deep)}
+.info-icon.i3{background:var(--mint);color:var(--mint-deep)}
+.info-value{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
+.info-label{font-size:9.5px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.07em}
+
+/* ═══════════════════════════════════════════
+   SETUP SCREEN
+   ═══════════════════════════════════════════ */
+.setup-top{display:flex;align-items:center;gap:12px;margin-bottom:clamp(20px,3.5vw,26px)}
+.setup-back{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--surface-alt);border:1px solid var(--line);
+  cursor:pointer;display:grid;place-items:center;
+  flex-shrink:0;color:var(--ink-soft);
+  transition:all var(--t);
+  -webkit-tap-highlight-color:transparent;
+}
+.setup-back:hover{background:var(--surface-sunken);color:var(--ink);transform:translateX(-2px)}
+.setup-back:active{transform:translateX(-2px) scale(.92)}
+.setup-back svg{width:18px;height:18px;stroke-width:2.5}
+.setup-title{font-size:clamp(18px,3.5vw,22px);font-weight:800;color:var(--ink);letter-spacing:-.02em}
+
+.peserta-chip{
+  display:flex;align-items:center;gap:14px;
+  padding:16px;
+  background:var(--lavender-soft);
+  border:1.5px solid var(--lavender);
+  border-radius:var(--r-lg);
+  margin-bottom:clamp(20px,3.5vw,28px);
+}
+.peserta-chip-avatar{
+  width:52px;height:52px;border-radius:50%;
+  color:#fff;font-weight:800;font-size:20px;
+  display:grid;place-items:center;flex-shrink:0;
+  border:3px solid var(--surface);
+  box-shadow:var(--sh-sm);
+}
+.peserta-chip-info{flex:1;min-width:0}
+.peserta-chip-label{font-size:9.5px;font-weight:700;color:var(--lavender-deep);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.peserta-chip-name{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peserta-chip-school{font-size:12px;color:var(--ink-soft);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+
+.setup-group{margin-bottom:clamp(18px,3vw,24px)}
+.setup-group-label{font-size:11px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+
+.mode-pills,.class-pills{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode-pill,.class-pill{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 12px;min-height:52px;
   background:var(--surface);border:1.5px solid var(--line);
-  border-radius:var(--r-md);font-size:clamp(11.5px,2vw,12.5px);
-  font-weight:700;color:var(--ink-soft);cursor:pointer;
+  border-radius:var(--r-lg);
+  font-size:13.5px;font-weight:700;
+  color:var(--ink-soft);cursor:pointer;
   transition:all var(--t);letter-spacing:-.01em;
   -webkit-tap-highlight-color:transparent;
 }
-.mode-pill:hover{border-color:var(--lavender-deep);color:var(--lavender-deep)}
-.mode-pill .mode-emoji{font-size:14px}
+.mode-pill:hover,.class-pill:hover{border-color:var(--lavender-deep);color:var(--lavender-deep);transform:translateY(-1px)}
+.mode-pill .mode-emoji{font-size:16px;line-height:1}
 .mode-pill.active[data-mode="lomba"]{background:var(--lavender-soft);border-color:var(--lavender-deep);color:var(--lavender-deep);box-shadow:0 0 0 3px rgba(139,125,196,.13)}
 .mode-pill.active[data-mode="latihan"]{background:var(--mint-soft);border-color:var(--mint-deep);color:var(--mint-deep);box-shadow:0 0 0 3px rgba(95,170,139,.15)}
-.mode-hint{font-size:10.5px;text-align:center;color:var(--ink-muted);margin:0 0 clamp(10px,1.8vw,14px);font-weight:500;line-height:1.35;min-height:14px}
-
-/* CLASS PILLS */
-.class-pills{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:clamp(10px,1.8vw,14px)}
-.class-pill{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:10px 8px;min-height:42px;
-  background:var(--surface);border:1.5px solid var(--line);
-  border-radius:var(--r-md);font-size:clamp(11.5px,2vw,12.5px);
-  font-weight:700;color:var(--ink-soft);cursor:pointer;
-  transition:all var(--t);letter-spacing:-.01em;
-  -webkit-tap-highlight-color:transparent;white-space:nowrap;
-}
-.class-pill .pill-dot{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);transition:all var(--t);flex-shrink:0}
-.class-pill:hover{border-color:var(--lavender-deep);color:var(--lavender-deep)}
 .class-pill.active{background:var(--lavender-soft);border-color:var(--lavender-deep);color:var(--lavender-deep);box-shadow:0 0 0 3px rgba(139,125,196,.13)}
-.class-pill.active .pill-dot{background:var(--lavender-deep);box-shadow:0 0 0 3px rgba(139,125,196,.25)}
+.mode-hint{font-size:11.5px;text-align:center;color:var(--ink-muted);font-weight:500;margin-top:10px;line-height:1.4;min-height:16px}
 
 .pool-info{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px 12px;background:var(--surface-alt);border:1px solid var(--line);
-  border-radius:var(--r-md);font-size:clamp(10.5px,1.8vw,11.5px);
-  font-weight:600;color:var(--ink-soft);
-  margin-bottom:clamp(12px,2vw,16px);text-align:center;line-height:1.4;
-  transition:all var(--t);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 14px;background:var(--surface-alt);border:1px solid var(--line);
+  border-radius:var(--r-md);font-size:12.5px;font-weight:600;
+  color:var(--ink-soft);margin-bottom:clamp(16px,3vw,20px);
+  text-align:center;line-height:1.4;transition:all var(--t);
 }
-.pool-info svg{width:13px;height:13px;flex-shrink:0;color:var(--ink-muted);stroke-width:2.4}
+.pool-info svg{width:15px;height:15px;flex-shrink:0;color:var(--ink-muted);stroke-width:2.4}
 .pool-info.warn{background:var(--butter-soft);border-color:var(--butter);color:var(--butter-deep)}
 .pool-info.warn svg{color:var(--butter-deep)}
 .pool-info.err{background:var(--danger-soft);border-color:var(--danger);color:var(--danger)}
 .pool-info.err svg{color:var(--danger)}
 .pool-info strong{color:var(--lavender-deep);font-weight:800}
 
-/* ═══ DROPDOWN PESERTA (NEW) ═══ */
-.dropdown{position:relative;margin-bottom:clamp(12px,2vw,16px)}
-.dropdown-trigger{
-  width:100%;display:flex;align-items:center;gap:12px;
-  padding:12px 14px;min-height:60px;
-  background:var(--surface);border:1.5px solid var(--line);
-  border-radius:var(--r-md);cursor:pointer;
-  transition:all var(--t);text-align:left;
-  font-family:inherit;color:inherit;
-  -webkit-tap-highlight-color:transparent;
-}
-.dropdown-trigger:hover{border-color:var(--lavender-deep)}
-.dropdown.open .dropdown-trigger{
-  border-color:var(--lavender-deep);
-  box-shadow:0 0 0 3px rgba(139,125,196,.13);
-}
-.dropdown-trigger:disabled{opacity:.55;cursor:not-allowed}
+.setup-actions{display:flex;gap:10px;margin-top:auto;padding-top:clamp(8px,2vw,12px)}
+.setup-actions .btn{flex:1;min-height:52px}
+.setup-actions .btn-secondary{flex:0 0 auto;min-width:120px}
 
-.dropdown-avatar{
-  width:40px;height:40px;border-radius:50%;
-  display:grid;place-items:center;color:#fff;font-weight:800;
-  font-size:16px;flex-shrink:0;
-  background:var(--surface-sunken);
-  transition:background var(--t);
-}
-.dropdown-avatar.placeholder{color:var(--ink-muted);font-size:18px}
-
-.dropdown-text{flex:1;min-width:0}
-.dropdown-name{
-  font-size:14px;font-weight:700;color:var(--ink);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.dropdown-name.placeholder{color:var(--ink-muted);font-weight:500}
-.dropdown-school{
-  font-size:11.5px;color:var(--ink-soft);font-weight:500;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  margin-top:1px;
-}
-.dropdown-arrow{
-  width:18px;height:18px;color:var(--ink-muted);
-  transition:transform var(--t);flex-shrink:0;
-}
-.dropdown.open .dropdown-arrow{transform:rotate(180deg)}
-
-.dropdown-menu{
-  position:absolute;top:calc(100% + 6px);left:0;right:0;
-  background:var(--surface);border:1.5px solid var(--line);
-  border-radius:var(--r-md);box-shadow:var(--sh-lg);
-  max-height:280px;overflow-y:auto;z-index:50;
-  opacity:0;transform:translateY(-6px);pointer-events:none;
-  transition:all var(--t);
-  scrollbar-width:thin;
-}
-.dropdown-menu::-webkit-scrollbar{width:6px}
-.dropdown-menu::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
-.dropdown.open .dropdown-menu{opacity:1;transform:translateY(0);pointer-events:auto}
-
-.dropdown-item{
-  display:flex;align-items:center;gap:12px;
-  padding:11px 14px;cursor:pointer;
-  transition:background var(--t-fast);
-  border:none;background:transparent;width:100%;
-  text-align:left;font-family:inherit;color:inherit;
-  -webkit-tap-highlight-color:transparent;
-}
-.dropdown-item:hover,
-.dropdown-item:focus-visible{background:var(--lavender-soft);outline:none}
-.dropdown-item.selected{background:var(--lavender-soft)}
-.dropdown-item .dropdown-avatar{width:36px;height:36px;font-size:14px}
-.dropdown-item-text{flex:1;min-width:0}
-.dropdown-item-name{font-size:13.5px;font-weight:700;color:var(--ink)}
-.dropdown-item-school{font-size:11px;color:var(--ink-soft);margin-top:1px}
-.dropdown-item-check{
-  width:16px;height:16px;color:var(--lavender-deep);
-  flex-shrink:0;opacity:0;
-}
-.dropdown-item.selected .dropdown-item-check{opacity:1}
-
-.dropdown-empty{
-  padding:20px;text-align:center;
-  font-size:12.5px;color:var(--ink-muted);font-weight:500;
-}
-
-/* START BUTTON */
-.btn-start{
-  width:100%;min-height:52px;margin-bottom:clamp(12px,2vw,16px);
-  font-size:14.5px;
-}
-.btn-start:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none}
-
-.info-strip{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  padding:clamp(9px,1.8vw,12px) 6px;
-  background:var(--surface-alt);border:1px solid var(--line);
-  border-radius:var(--r-lg);
-}
-.info-item{display:flex;flex-direction:column;align-items:center;gap:clamp(3px,1vw,5px);position:relative;padding:0 2px}
-.info-item:not(:last-child)::after{
-  content:'';position:absolute;right:0;top:15%;height:70%;width:1px;background:var(--line);
-}
-.info-icon{width:clamp(24px,4.5vw,28px);height:clamp(24px,4.5vw,28px);border-radius:clamp(7px,2vw,9px);display:grid;place-items:center}
-.info-icon svg{width:clamp(12px,2.3vw,14px);height:clamp(12px,2.3vw,14px);stroke-width:2.4}
-.info-icon.i1{background:var(--lavender);color:var(--lavender-deep)}
-.info-icon.i2{background:var(--butter);color:var(--butter-deep)}
-.info-icon.i3{background:var(--mint);color:var(--mint-deep)}
-.info-value{font-size:clamp(13px,2.4vw,15px);font-weight:800;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
-.info-label{font-size:clamp(8.5px,1.5vw,9.5px);font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em}
-
-/* QUIZ */
+/* ═══════════════════════════════════════════
+   QUIZ
+   ═══════════════════════════════════════════ */
 .quiz-layout{display:grid;grid-template-columns:minmax(0,1fr) clamp(260px,22vw,320px);height:100%;overflow:hidden}
 .main{padding:20px 26px;display:flex;flex-direction:column;overflow:hidden;min-height:0;min-width:0}
 .q-counter{display:flex;align-items:baseline;gap:6px;margin-bottom:12px;flex-shrink:0}
@@ -322,12 +443,7 @@ button{font-family:inherit}
 .option.disabled:not(.correct):not(.wrong){opacity:.55}
 .option.correct{border-color:var(--mint-deep);background:var(--mint-soft);box-shadow:0 0 0 3px rgba(95,170,139,.18)}
 .option.wrong{border-color:var(--danger);background:var(--danger-soft);box-shadow:0 0 0 3px rgba(217,104,104,.15)}
-.option-letter{
-  width:32px;height:32px;border-radius:50%;background:var(--surface-alt);
-  color:var(--ink-soft);display:grid;place-items:center;
-  font-weight:800;font-size:13.5px;flex-shrink:0;
-  transition:all var(--t-bounce);
-}
+.option-letter{width:32px;height:32px;border-radius:50%;background:var(--surface-alt);color:var(--ink-soft);display:grid;place-items:center;font-weight:800;font-size:13.5px;flex-shrink:0;transition:all var(--t-bounce)}
 .option:hover:not(.disabled) .option-letter{background:var(--lavender);color:var(--lavender-deep)}
 .option.selected .option-letter{background:var(--lavender-deep);color:#fff;transform:scale(1.06)}
 .option.correct .option-letter{background:var(--mint-deep);color:#fff}
@@ -397,36 +513,36 @@ button{font-family:inherit}
 .qgrid-btn.wrong-mark{background:var(--danger-soft);border-color:var(--danger);color:var(--danger)}
 
 .btn-finish{width:100%;margin-top:auto;flex-shrink:0}
-.btn-finish-icon{
-  display:none;width:42px;height:42px;padding:0;border-radius:50%;
-  background:var(--lavender-deep);color:#fff;border:none;cursor:pointer;
-  align-items:center;justify-content:center;flex-shrink:0;
-  transition:all var(--t);
-}
+.btn-finish-icon{display:none;width:42px;height:42px;padding:0;border-radius:50%;background:var(--lavender-deep);color:#fff;border:none;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t)}
 .btn-finish-icon svg{width:16px;height:16px;stroke-width:2.5}
 .btn-finish-icon:active{transform:scale(.92)}
 
-/* BUTTONS */
+/* ═══════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════ */
 .btn{
-  padding:12px 20px;min-height:44px;border:none;border-radius:var(--r-md);
+  padding:13px 22px;min-height:48px;border:none;border-radius:var(--r-md);
   font-size:14px;font-weight:700;letter-spacing:-.01em;cursor:pointer;
   transition:all var(--t);display:inline-flex;align-items:center;
-  justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent;
+  justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;
 }
-.btn svg{width:15px;height:15px;stroke-width:2.5;flex-shrink:0}
+.btn svg{width:16px;height:16px;stroke-width:2.5;flex-shrink:0}
 .btn-primary{background:var(--lavender-deep);color:#fff;box-shadow:0 4px 14px rgba(139,125,196,.3)}
 .btn-primary:hover:not(:disabled){background:#7B6CB8;transform:translateY(-2px);box-shadow:0 6px 20px rgba(139,125,196,.4)}
 .btn-secondary{background:var(--surface-alt);color:var(--ink);border:1px solid var(--line)}
 .btn-secondary:hover:not(:disabled){background:var(--surface-sunken);border-color:var(--ink-faint)}
-.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;transform:none}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none}
 .btn:active:not(:disabled){transform:translateY(0) scale(.98)}
 
-/* RESULT */
+/* ═══════════════════════════════════════════
+   RESULT
+   ═══════════════════════════════════════════ */
 .result-head{text-align:center;margin-bottom:22px}
-.result-emoji{font-size:clamp(42px,12vw,48px);margin-bottom:8px;animation:emojiPop .5s var(--t-bounce) both}
+.result-emoji{font-size:clamp(44px,12vw,52px);margin-bottom:8px;animation:emojiPop .5s var(--t-bounce) both}
 @keyframes emojiPop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
-.result-title{font-size:clamp(19px,5vw,24px);font-weight:800;letter-spacing:-.03em;color:var(--ink);margin-bottom:4px}
+.result-title{font-size:clamp(20px,5vw,24px);font-weight:800;letter-spacing:-.03em;color:var(--ink);margin-bottom:4px}
 .result-peserta{color:var(--ink-soft);font-size:clamp(12px,3vw,13.5px);font-weight:500}
+
 .score-ring-wrap{position:relative;width:clamp(150px,42vw,170px);height:clamp(150px,42vw,170px);margin:clamp(16px,3vw,20px) auto;display:grid;place-items:center}
 .score-ring{width:100%;height:100%;transform:rotate(-90deg)}
 .score-ring circle{fill:none;stroke-width:10;stroke-linecap:round}
@@ -436,30 +552,29 @@ button{font-family:inherit}
 .score-number{font-size:clamp(40px,12vw,56px);font-weight:800;letter-spacing:-.04em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
 .score-label{font-size:clamp(10px,2.6vw,10.5px);font-weight:700;color:var(--ink-muted);letter-spacing:.1em;text-transform:uppercase}
 
-.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px,1.8vw,9px);margin-bottom:16px}
-.stat{text-align:center;padding:clamp(10px,2.5vw,14px) 6px;background:var(--surface-alt);border:1px solid var(--line);border-radius:var(--r-md)}
-.stat-icon{width:clamp(24px,6.5vw,28px);height:clamp(24px,6.5vw,28px);border-radius:clamp(7px,2vw,9px);display:grid;place-items:center;margin:0 auto 6px}
-.stat-icon svg{width:clamp(12px,3.3vw,14px);height:clamp(12px,3.3vw,14px);stroke-width:2.5}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{text-align:center;padding:14px 8px;background:var(--surface-alt);border:1px solid var(--line);border-radius:var(--r-md)}
+.stat-icon{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;margin:0 auto 6px}
+.stat-icon svg{width:14px;height:14px;stroke-width:2.5}
 .stat-icon.ok{background:var(--mint);color:var(--mint-deep)}
 .stat-icon.no{background:var(--pink);color:var(--pink-deep)}
 .stat-icon.tm{background:var(--sky);color:var(--sky-deep)}
-.stat-value{font-size:clamp(15px,4vw,20px);font-weight:800;color:var(--ink);letter-spacing:-.02em;display:block;margin-bottom:1px;font-variant-numeric:tabular-nums}
-.stat-label{font-size:clamp(8.5px,2.3vw,9.5px);font-weight:700;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase}
-.sync-status{text-align:center;font-size:clamp(11px,2.8vw,11.5px);color:var(--ink-muted);margin-bottom:14px;min-height:16px;display:flex;align-items:center;justify-content:center;gap:5px}
+.stat-value{font-size:clamp(16px,4vw,20px);font-weight:800;color:var(--ink);letter-spacing:-.02em;display:block;margin-bottom:1px;font-variant-numeric:tabular-nums}
+.stat-label{font-size:9.5px;font-weight:700;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase}
+.sync-status{text-align:center;font-size:11.5px;color:var(--ink-muted);margin-bottom:14px;min-height:16px;display:flex;align-items:center;justify-content:center;gap:5px}
 .sync-status.ok{color:var(--mint-deep)}
 .sync-status.err{color:var(--danger)}
 
-/* REVIEW */
 .review-section{margin:20px 0 18px;padding:16px 0 0;border-top:1px dashed rgba(43,45,58,.15)}
 .review-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.review-title{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em;display:flex;align-items:center;gap:7px}
-.review-title svg{width:16px;height:16px;color:var(--lavender-deep);stroke-width:2.4}
-.review-count{font-size:11px;font-weight:700;color:var(--ink-soft);background:var(--surface-alt);border:1px solid var(--line);padding:3px 10px;border-radius:var(--r-full)}
+.review-title{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.review-title svg{width:17px;height:17px;color:var(--lavender-deep);stroke-width:2.4}
+.review-count{font-size:11px;font-weight:700;color:var(--ink-soft);background:var(--surface-alt);border:1px solid var(--line);padding:4px 11px;border-radius:var(--r-full)}
 .review-list{display:flex;flex-direction:column;gap:8px}
 .review-item{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-md);overflow:hidden}
 .review-item summary{cursor:pointer;list-style:none;padding:12px 14px;display:flex;align-items:center;gap:10px;user-select:none;transition:background var(--t)}
 .review-item summary::-webkit-details-marker{display:none}
-.review-item summary::after{content:'▾';margin-left:auto;color:var(--ink-muted);transition:transform var(--t);font-size:11px;flex-shrink:0}
+.review-item summary::after{content:'▾';margin-left:auto;color:var(--ink-muted);transition:transform var(--t);font-size:12px;flex-shrink:0}
 .review-item[open] summary::after{transform:rotate(180deg)}
 .review-item summary:hover{background:var(--surface-alt)}
 .review-num{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;font-variant-numeric:tabular-nums}
@@ -469,9 +584,9 @@ button{font-family:inherit}
 .review-item[open] .review-q{display:block;-webkit-line-clamp:unset;white-space:normal}
 .review-body{padding:0 14px 14px}
 .review-question-full{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.55;margin-bottom:12px;padding:12px 14px;background:var(--surface-alt);border-radius:var(--r-sm)}
-.review-answers{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.review-answers{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .review-answer{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.45}
-.review-answer-label{font-size:10.5px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;padding-top:1px;min-width:80px}
+.review-answer-label{font-size:10px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;padding-top:2px;min-width:90px}
 .review-answer-text{color:var(--ink-soft);font-weight:500;flex:1}
 .review-answer-text strong{color:var(--ink);font-weight:700}
 .review-item.wrong .review-answer.your .review-answer-text{color:var(--danger)}
@@ -480,10 +595,24 @@ button{font-family:inherit}
 .review-pembahasan-label{display:block;font-size:10px;font-weight:800;color:var(--lavender-deep);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
 .review-pembahasan.empty{background:var(--surface-alt);border-left-color:var(--ink-faint);font-style:italic;color:var(--ink-muted)}
 
-/* TOAST, MODAL, LOADING, CONFETTI (ringkas) */
-.toast-container{position:fixed;top:calc(16px + var(--safe-t));left:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:min(360px,calc(100vw - 32px));margin:0 auto;pointer-events:none}
-@media (min-width:600px){.toast-container{left:auto;right:calc(20px + var(--safe-r));top:calc(20px + var(--safe-t));margin:0}}
-.toast{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:13px 13px 13px 15px;box-shadow:var(--sh-lg);display:flex;align-items:flex-start;gap:11px;pointer-events:auto;animation:toastIn .35s var(--t-bounce) both;position:relative;overflow:hidden}
+/* TOAST */
+.toast-container{
+  position:fixed;top:calc(16px + var(--safe-t));
+  left:16px;right:16px;z-index:9999;
+  display:flex;flex-direction:column;gap:10px;
+  max-width:min(360px,calc(100vw - 32px));
+  margin:0 auto;pointer-events:none;
+}
+@media (min-width:600px){
+  .toast-container{left:auto;right:calc(20px + var(--safe-r));top:calc(20px + var(--safe-t));margin:0}
+}
+.toast{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:13px 13px 13px 15px;
+  box-shadow:var(--sh-lg);display:flex;align-items:flex-start;gap:11px;
+  pointer-events:auto;animation:toastIn .35s var(--t-bounce) both;
+  position:relative;overflow:hidden;
+}
 .toast::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--lavender-deep)}
 .toast.success::before{background:var(--mint-deep)}
 .toast.error::before{background:var(--danger)}
@@ -505,20 +634,40 @@ button{font-family:inherit}
 .toast-close:hover{background:var(--surface-alt);color:var(--ink)}
 .toast-close svg{width:12px;height:12px;stroke-width:2.5}
 
-.modal-backdrop{position:fixed;inset:0;z-index:10000;background:rgba(43,45,58,.4);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);display:grid;place-items:center;padding:16px;opacity:0;pointer-events:none;transition:opacity var(--t)}
+/* MODAL */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:10000;
+  background:rgba(43,45,58,.4);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  display:grid;place-items:center;padding:16px;
+  opacity:0;pointer-events:none;transition:opacity var(--t);
+}
 .modal-backdrop.active{opacity:1;pointer-events:auto}
-.modal{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);padding:24px 20px 20px;box-shadow:var(--sh-xl);transform:scale(.94) translateY(12px);transition:transform var(--t-bounce);text-align:center}
+.modal{
+  width:100%;max-width:380px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-xl);
+  padding:26px 22px 22px;box-shadow:var(--sh-xl);
+  transform:scale(.94) translateY(12px);
+  transition:transform var(--t-bounce);text-align:center;
+}
 .modal-backdrop.active .modal{transform:scale(1) translateY(0)}
-.modal-icon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;margin:0 auto 16px;background:var(--lavender-soft);color:var(--lavender-deep)}
-.modal-icon svg{width:24px;height:24px;stroke-width:2.2}
+.modal-icon{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;margin:0 auto 16px;background:var(--lavender-soft);color:var(--lavender-deep)}
+.modal-icon svg{width:26px;height:26px;stroke-width:2.2}
 .modal-icon.warn{background:var(--butter-soft);color:var(--butter-deep)}
 .modal-icon.danger{background:var(--danger-soft);color:var(--danger)}
 .modal-title{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:6px;letter-spacing:-.02em}
-.modal-msg{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin-bottom:20px}
+.modal-msg{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin-bottom:22px}
 .modal-actions{display:flex;gap:10px}
 .modal-actions .btn{flex:1}
 
-.loading-overlay{position:fixed;inset:0;z-index:9998;background:rgba(247,245,240,.9);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity var(--t)}
+/* LOADING */
+.loading-overlay{
+  position:fixed;inset:0;z-index:9998;
+  background:rgba(247,245,240,.9);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  display:grid;place-items:center;
+  opacity:0;pointer-events:none;transition:opacity var(--t);
+}
 .loading-overlay.active{opacity:1;pointer-events:auto}
 .loader{display:flex;flex-direction:column;align-items:center;gap:14px}
 .loader-dots{display:flex;gap:8px}
@@ -533,12 +682,13 @@ button{font-family:inherit}
 @keyframes confettiFall{to{transform:translateY(100vh) rotate(720deg)}}
 
 /* RESPONSIVE */
-@media (min-width:600px){
-  .class-pills{grid-template-columns:repeat(4,1fr);gap:8px}
-  .class-pill{padding:11px 10px}
-}
 @media (max-width:900px){
-  .app-wrap{padding:10px;padding-top:calc(10px + var(--safe-t));padding-bottom:calc(10px + var(--safe-b))}
+  .app-wrap{
+    padding:10px;
+    padding-top:calc(10px + var(--safe-t));
+    padding-bottom:calc(10px + var(--safe-b));
+    align-items:flex-start;
+  }
   .app[data-screen="scr-quiz"]{height:auto;max-height:none;max-width:100%}
   .quiz-layout{display:flex;flex-direction:column;height:auto;overflow:visible}
   .sidebar{
@@ -571,27 +721,42 @@ button{font-family:inherit}
   .option{padding:14px 15px;min-height:54px}
   .nav-buttons{position:sticky;bottom:0;background:var(--surface);padding:10px 0 4px;margin:0 -18px;padding-left:18px;padding-right:18px;box-shadow:0 -8px 16px -8px rgba(43,45,58,.05)}
 }
+
 @media (max-width:400px){
   .app-wrap{padding:8px}
-  .screen.active.welcome-pad,.screen.active.result-pad{padding:16px 14px}
-  .brand-logo{width:44px;height:44px;margin-bottom:10px}
-  .brand-title{font-size:18px}
-  .brand-sub{font-size:10.5px}
-  .brand-badge{font-size:9px;padding:3px 10px 3px 6px;margin-top:6px}
-  .section-label{font-size:10.5px;margin-bottom:8px}
-  .mode-pill,.class-pill{padding:10px 6px;font-size:11px;min-height:40px;gap:5px}
-  .dropdown-trigger{padding:10px 12px;min-height:56px}
-  .dropdown-avatar{width:36px;height:36px;font-size:14px}
-  .dropdown-name{font-size:13px}
-  .dropdown-school{font-size:10.5px}
-  .dropdown-item{padding:10px 12px}
-  .dropdown-item .dropdown-avatar{width:32px;height:32px;font-size:12.5px}
-  .pool-info{padding:7px 10px;font-size:10px;margin-bottom:12px}
-  .info-strip{padding:8px 4px}
-  .info-icon{width:22px;height:22px}
-  .info-icon svg{width:11px;height:11px}
-  .info-value{font-size:12px}
-  .info-label{font-size:8px}
+  .brand-logo{width:64px;height:64px;border-radius:20px;margin-bottom:14px}
+  .brand-logo svg{width:30px;height:30px}
+  .brand-title{font-size:22px}
+  .brand-sub{font-size:12px}
+  .brand-badge{font-size:9.5px;padding:4px 10px 4px 7px;margin-top:10px}
+  .section-label{font-size:11px;margin-bottom:10px}
+  .dropdown-trigger{padding:12px 14px;min-height:62px;gap:12px}
+  .dropdown-avatar{width:40px;height:40px;font-size:16px}
+  .dropdown-name{font-size:14.5px}
+  .dropdown-school{font-size:11px}
+  .dropdown-item{padding:10px 12px;gap:10px}
+  .dropdown-item .dropdown-avatar{width:34px;height:34px;font-size:13.5px}
+  .dropdown-item-name{font-size:13px}
+  .dropdown-item-school{font-size:11px}
+  .welcome-actions .btn{min-height:50px;font-size:14px}
+  .info-strip{padding:12px 6px}
+  .info-icon{width:26px;height:26px;border-radius:8px}
+  .info-icon svg{width:13px;height:13px}
+  .info-value{font-size:14px}
+  .info-label{font-size:8.5px}
+  .setup-title{font-size:17px}
+  .setup-back{width:36px;height:36px}
+  .setup-back svg{width:16px;height:16px}
+  .peserta-chip{padding:14px;gap:12px}
+  .peserta-chip-avatar{width:46px;height:46px;font-size:18px}
+  .peserta-chip-name{font-size:15.5px}
+  .peserta-chip-school{font-size:11px}
+  .mode-pill,.class-pill{padding:12px 10px;font-size:12.5px;min-height:48px;gap:6px}
+  .mode-pill .mode-emoji{font-size:15px}
+  .mode-hint{font-size:11px}
+  .pool-info{padding:10px 12px;font-size:11.5px}
+  .setup-actions .btn{min-height:48px;font-size:13.5px}
+  .setup-actions .btn-secondary{min-width:100px}
   .q-counter-num{font-size:15px}
   .question-card{padding:14px 16px;margin-bottom:12px}
   .question-text{font-size:14.5px}
@@ -600,11 +765,47 @@ button{font-family:inherit}
   .option-letter{width:28px;height:28px;font-size:12.5px}
   .nav-buttons .btn{min-height:46px;font-size:13px}
   .modal{padding:22px 18px 18px}
+  .modal-title{font-size:17px}
+  .modal-msg{font-size:13px}
+  .modal-actions{gap:8px}
+  .review-q{font-size:12.5px}
   .review-question-full{font-size:13px;padding:10px 12px}
-  .review-answer-label{min-width:70px;font-size:10px}
+  .review-answer-label{min-width:80px;font-size:9.5px}
+  .review-answer{font-size:12px}
+  .review-pembahasan{font-size:12px}
+  .score-number{font-size:42px}
 }
+
+@media (max-width:900px) and (orientation:landscape) and (max-height:520px){
+  .app-wrap{padding:6px}
+  .brand-logo,.brand-sub,.brand-badge{display:none}
+  .brand{margin-bottom:10px}
+  .brand-title{font-size:18px}
+  .sidebar{padding:6px 12px 5px;gap:6px 8px}
+  .student-card .avatar{width:28px;height:28px;font-size:12px}
+  .student-name{font-size:12.5px}
+  .timer-card{padding:4px 9px;gap:4px}
+  .timer-value{font-size:13px}
+  .btn-finish-icon{width:32px;height:32px}
+  .qgrid-btn{width:32px;height:32px;min-height:32px;font-size:11.5px}
+  .main{padding:12px 16px 14px}
+  .question-card{padding:12px 14px;margin-bottom:10px}
+  .question-text{font-size:14px}
+  .option{padding:10px 12px;min-height:44px}
+  .option-text{font-size:13.5px}
+  .nav-buttons .btn{min-height:42px;font-size:13px}
+}
+
+@media (min-width:1200px) and (min-height:750px){
+  .app-wrap{padding:0}
+  .app[data-screen="scr-quiz"]{border-radius:0;border:none;height:100vh;height:100dvh;max-width:100%;box-shadow:none}
+}
+
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  *,*::before,*::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
 }
 </style>
 </head>
@@ -613,7 +814,7 @@ button{font-family:inherit}
 <div class="app-wrap">
 <div class="app" id="appShell" data-screen="scr-welcome">
 
-  <!-- WELCOME -->
+  <!-- ═══ LAYAR 1 — WELCOME (Landing) ═══ -->
   <section id="scr-welcome" class="screen active welcome-pad">
     <div class="brand">
       <div class="brand-logo">
@@ -631,49 +832,28 @@ button{font-family:inherit}
       <span class="brand-badge">Mode Internal</span>
     </div>
 
-    <p class="section-label">1. Pilih mode</p>
-    <div class="mode-pills" id="modePills">
-      <button class="mode-pill active" data-mode="lomba" type="button">
-        <span class="mode-emoji">🏆</span> Mode Lomba
-      </button>
-      <button class="mode-pill" data-mode="latihan" type="button">
-        <span class="mode-emoji">📚</span> Mode Latihan
-      </button>
-    </div>
-    <p class="mode-hint" id="modeHint">Pembahasan muncul setelah selesai</p>
+    <p class="section-label">Siapa yang akan mengerjakan?</p>
 
-    <p class="section-label">2. Pilih kategori soal</p>
-    <div class="class-pills" id="classPills">
-      <button class="class-pill active" data-kelas="all" type="button"><span class="pill-dot"></span> Semua</button>
-      <button class="class-pill" data-kelas="4" type="button"><span class="pill-dot"></span> Kelas 4</button>
-      <button class="class-pill" data-kelas="5" type="button"><span class="pill-dot"></span> Kelas 5</button>
-      <button class="class-pill" data-kelas="6" type="button"><span class="pill-dot"></span> Kelas 6</button>
-    </div>
-
-    <div class="pool-info" id="poolInfo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span id="poolText">Memuat bank soal…</span>
-    </div>
-
-    <p class="section-label">3. Pilih peserta</p>
     <div class="dropdown" id="pesertaDropdown">
       <button class="dropdown-trigger" id="dropdownTrigger" type="button" aria-haspopup="listbox" aria-expanded="false">
         <div class="dropdown-avatar placeholder" id="selectedAvatar">?</div>
         <div class="dropdown-text">
-          <div class="dropdown-name placeholder" id="selectedName">Pilih peserta…</div>
+          <div class="dropdown-name placeholder" id="selectedName">Pilih namamu…</div>
           <div class="dropdown-school" id="selectedSchool"></div>
         </div>
-        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
       <div class="dropdown-menu" id="dropdownMenu" role="listbox"></div>
     </div>
 
-    <button class="btn btn-primary btn-start" id="btnStart" type="button" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Mulai Ujian
-    </button>
+    <div class="welcome-actions">
+      <button class="btn btn-primary" id="btnLanjut" type="button" disabled>
+        Lanjut
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
 
     <div class="info-strip">
       <div class="info-item">
@@ -694,7 +874,62 @@ button{font-family:inherit}
     </div>
   </section>
 
-  <!-- QUIZ -->
+  <!-- ═══ LAYAR 2 — SETUP ═══ -->
+  <section id="scr-setup" class="screen setup-pad">
+    <div class="setup-top">
+      <button class="setup-back" id="btnBack" type="button" aria-label="Kembali">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </button>
+      <h2 class="setup-title">Persiapan Ujian</h2>
+    </div>
+
+    <div class="peserta-chip">
+      <div class="peserta-chip-avatar" id="setupAvatar">?</div>
+      <div class="peserta-chip-info">
+        <div class="peserta-chip-label">Peserta</div>
+        <div class="peserta-chip-name" id="setupName">—</div>
+        <div class="peserta-chip-school" id="setupSchool"></div>
+      </div>
+    </div>
+
+    <div class="setup-group">
+      <p class="setup-group-label">Pilih mode</p>
+      <div class="mode-pills" id="modePills">
+        <button class="mode-pill active" data-mode="lomba" type="button">
+          <span class="mode-emoji">🏆</span> Mode Lomba
+        </button>
+        <button class="mode-pill" data-mode="latihan" type="button">
+          <span class="mode-emoji">📚</span> Mode Latihan
+        </button>
+      </div>
+      <p class="mode-hint" id="modeHint">Pembahasan muncul setelah selesai</p>
+    </div>
+
+    <div class="setup-group">
+      <p class="setup-group-label">Pilih kategori soal</p>
+      <div class="class-pills" id="classPills">
+        <button class="class-pill active" data-kelas="all" type="button">Semua</button>
+        <button class="class-pill" data-kelas="4" type="button">Kelas 4</button>
+        <button class="class-pill" data-kelas="5" type="button">Kelas 5</button>
+        <button class="class-pill" data-kelas="6" type="button">Kelas 6</button>
+      </div>
+    </div>
+
+    <div class="pool-info" id="poolInfo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span id="poolText">Memuat bank soal…</span>
+    </div>
+
+    <div class="setup-actions">
+      <button class="btn btn-secondary" id="btnCancel" type="button">Batal</button>
+      <button class="btn btn-primary" id="btnMulai" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Mulai Ujian
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══ LAYAR 3 — QUIZ ═══ -->
   <section id="scr-quiz" class="screen">
     <div class="quiz-layout">
       <main class="main">
@@ -760,13 +995,14 @@ button{font-family:inherit}
     </div>
   </section>
 
-  <!-- RESULT -->
+  <!-- ═══ LAYAR 4 — RESULT ═══ -->
   <section id="scr-result" class="screen result-pad">
     <div class="result-head">
       <div class="result-emoji" id="resultEmoji">🎉</div>
       <h2 class="result-title" id="resultTitle">Selesai!</h2>
       <p class="result-peserta" id="resultPeserta"></p>
     </div>
+
     <div class="score-ring-wrap">
       <svg class="score-ring" viewBox="0 0 200 200">
         <circle class="track" cx="100" cy="100" r="90"/>
@@ -777,6 +1013,7 @@ button{font-family:inherit}
         <div class="score-label">dari 100</div>
       </div>
     </div>
+
     <div class="result-stats">
       <div class="stat">
         <div class="stat-icon ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
@@ -794,7 +1031,9 @@ button{font-family:inherit}
         <span class="stat-label">Waktu</span>
       </div>
     </div>
+
     <p class="sync-status" id="syncStatus"></p>
+
     <div class="review-section" id="reviewSection" style="display:none">
       <div class="review-header">
         <div class="review-title">
@@ -805,6 +1044,7 @@ button{font-family:inherit}
       </div>
       <div class="review-list" id="reviewList"></div>
     </div>
+
     <button class="btn btn-primary" id="btnRestart" type="button" style="width:100%">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       Main Lagi
@@ -818,7 +1058,9 @@ button{font-family:inherit}
 
 <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
   <div class="modal">
-    <div class="modal-icon" id="modalIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+    <div class="modal-icon" id="modalIcon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
     <h3 class="modal-title" id="modalTitle">Konfirmasi</h3>
     <p class="modal-msg" id="modalMsg"></p>
     <div class="modal-actions">
@@ -839,14 +1081,11 @@ button{font-family:inherit}
 (() => {
   'use strict';
 
-  // ═══════════════════════════════════════════════════════════
-  //  CONFIG
-  // ═══════════════════════════════════════════════════════════
   const APPS_URL = 'https://script.google.com/macros/s/AKfycbwbZ4E_iXS_zCvWqpTjLq4ozyXBd8NzE-EVLc0jq3dEpnqFfyXFuwo141ufBL84Dd2r/exec';
   const TOTAL_SOAL = 25;
   const WAKTU = 20 * 60;
-  const CACHE_KEY = 'cc_init_v1';
-  const DRAFT_KEY = 'cc_draft_v1';
+  const CACHE_KEY = 'cc_init_v4';
+  const DRAFT_KEY = 'cc_draft_v4';
   const TTL = 6 * 60 * 60 * 1000;
   const REQ_TIMEOUT = 30000;
   const REQ_RETRY = 2;
@@ -854,26 +1093,30 @@ button{font-family:inherit}
   const AVATAR_COLORS = ['#8B7DC4','#5E94BC','#D07098','#5FAA8B','#E5805A','#D5A23F'];
   const CONFETTI_COLORS = ['#DDD4F0','#C8E6D7','#FFD9C0','#F8D0DD','#CFE3F1','#FFE9B8'];
 
-  // ═══════════════════════════════════════════════════════════
-  //  DOM CACHE
-  // ═══════════════════════════════════════════════════════════
   const $ = id => document.getElementById(id);
   const D = {
     appShell: $('appShell'),
     screens: document.querySelectorAll('.screen'),
     quizScreen: $('scr-quiz'),
-    modePills: $('modePills'),
-    modeHint: $('modeHint'),
-    classPills: $('classPills'),
-    poolInfo: $('poolInfo'),
-    poolText: $('poolText'),
+    setupScreen: $('scr-setup'),
     dropdown: $('pesertaDropdown'),
     dropdownTrigger: $('dropdownTrigger'),
     dropdownMenu: $('dropdownMenu'),
     selectedAvatar: $('selectedAvatar'),
     selectedName: $('selectedName'),
     selectedSchool: $('selectedSchool'),
-    btnStart: $('btnStart'),
+    btnLanjut: $('btnLanjut'),
+    setupAvatar: $('setupAvatar'),
+    setupName: $('setupName'),
+    setupSchool: $('setupSchool'),
+    modePills: $('modePills'),
+    modeHint: $('modeHint'),
+    classPills: $('classPills'),
+    poolInfo: $('poolInfo'),
+    poolText: $('poolText'),
+    btnBack: $('btnBack'),
+    btnCancel: $('btnCancel'),
+    btnMulai: $('btnMulai'),
     qNum: $('qNum'),
     qTotal: $('qTotal'),
     qModeBadge: $('qModeBadge'),
@@ -919,20 +1162,14 @@ button{font-family:inherit}
     loaderText: $('loaderText'),
   };
 
-  // ═══════════════════════════════════════════════════════════
-  //  STATE
-  // ═══════════════════════════════════════════════════════════
   const state = {
-    soal: [], peserta: [], jawaban: [],
+    bank: [], soal: [], peserta: [], jawaban: [],
     idx: 0, sisa: WAKTU, timerId: null,
     pesertaDipilih: null, mulaiAt: 0, submitting: false,
     kelas: 'all', mode: 'lomba',
     loaded: false,
   };
 
-  // ═══════════════════════════════════════════════════════════
-  //  HELPERS
-  // ═══════════════════════════════════════════════════════════
   const pad2 = n => String(n).padStart(2, '0');
   const fmtTime = d => `${pad2(Math.floor(d / 60))}:${pad2(d % 60)}`;
   const escapeHtml = s => String(s ?? '')
@@ -952,9 +1189,6 @@ button{font-family:inherit}
     return a;
   };
 
-  // ═══════════════════════════════════════════════════════════
-  //  CACHE
-  // ═══════════════════════════════════════════════════════════
   const cache = {
     get(k, ttl) {
       try {
@@ -969,9 +1203,6 @@ button{font-family:inherit}
     del(k) { localStorage.removeItem(k); },
   };
 
-  // ═══════════════════════════════════════════════════════════
-  //  JSONP
-  // ═══════════════════════════════════════════════════════════
   function jsonpOnce(action, params, timeoutMs) {
     return new Promise((resolve, reject) => {
       const cb = '__cb_' + Date.now() + Math.random().toString(36).slice(2, 6);
@@ -998,9 +1229,6 @@ button{font-family:inherit}
     throw lastErr || new Error('Gagal terhubung');
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  TOAST
-  // ═══════════════════════════════════════════════════════════
   const TOAST_ICONS = {
     success: '<polyline points="20 6 9 17 4 12"/>',
     error:   '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
@@ -1026,9 +1254,6 @@ button{font-family:inherit}
     if (duration > 0) setTimeout(remove, duration);
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  MODAL
-  // ═══════════════════════════════════════════════════════════
   function confirmModal({ title, msg, icon = 'info', confirmText = 'Ya', cancelText = 'Batal' }) {
     return new Promise(resolve => {
       D.modalTitle.textContent = title;
@@ -1037,7 +1262,6 @@ button{font-family:inherit}
       D.modalCancel.textContent = cancelText;
       D.modalIcon.className = 'modal-icon' + (icon === 'warn' ? ' warn' : icon === 'danger' ? ' danger' : '');
       D.modalBackdrop.classList.add('active');
-
       const cleanup = () => {
         D.modalBackdrop.classList.remove('active');
         D.modalConfirm.removeEventListener('click', onYes);
@@ -1059,16 +1283,12 @@ button{font-family:inherit}
 
   const showLoading = text => { D.loaderText.textContent = text; D.loadingOverlay.classList.add('active'); };
   const hideLoading = () => D.loadingOverlay.classList.remove('active');
-
   const go = id => {
     D.screens.forEach(s => s.classList.toggle('active', s.id === id));
     D.appShell.dataset.screen = id;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ═══════════════════════════════════════════════════════════
-  //  INIT DATA LOADER
-  // ═══════════════════════════════════════════════════════════
   async function loadInitData() {
     const cached = cache.get(CACHE_KEY, TTL);
     if (cached?.soal?.length) {
@@ -1084,16 +1304,13 @@ button{font-family:inherit}
   }
 
   function applyInitData(data) {
-    state.soal = data.soal || [];
+    state.bank = data.soal || [];
     state.peserta = data.peserta || [];
     state.loaded = true;
     renderDropdown();
     updatePoolInfo();
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  DROPDOWN
-  // ═══════════════════════════════════════════════════════════
   function renderDropdown() {
     const frag = document.createDocumentFragment();
     if (!state.peserta.length) {
@@ -1132,27 +1349,40 @@ button{font-family:inherit}
     D.selectedName.textContent = p.nama;
     D.selectedName.classList.remove('placeholder');
     D.selectedSchool.textContent = p.sekolah;
-    D.btnStart.disabled = false;
-    closeDropdown();
-    // Highlight selected
+    D.btnLanjut.disabled = false;
     D.dropdownMenu.querySelectorAll('.dropdown-item').forEach(el => {
       el.classList.toggle('selected', el.dataset.id === p.id);
     });
+    closeDropdown();
   }
 
   function openDropdown() {
     D.dropdown.classList.add('open');
     D.dropdownTrigger.setAttribute('aria-expanded', 'true');
+    D.appShell.classList.add('dropdown-open');
   }
   function closeDropdown() {
     D.dropdown.classList.remove('open');
     D.dropdownTrigger.setAttribute('aria-expanded', 'false');
+    D.appShell.classList.remove('dropdown-open');
   }
   const toggleDropdown = () => D.dropdown.classList.contains('open') ? closeDropdown() : openDropdown();
 
-  // ═══════════════════════════════════════════════════════════
-  //  MODE & KELAS
-  // ═══════════════════════════════════════════════════════════
+  function goToSetup() {
+    const p = state.pesertaDipilih;
+    if (!p) { toast('warning', 'Pilih peserta dulu', '', 2000); return; }
+    D.setupAvatar.textContent = p.nama[0];
+    D.setupAvatar.style.background = colorFor(p.nama);
+    D.setupName.textContent = p.nama;
+    D.setupSchool.textContent = p.sekolah;
+    go('scr-setup');
+  }
+
+  function goToWelcome() {
+    closeDropdown();
+    go('scr-welcome');
+  }
+
   function setMode(mode) {
     state.mode = mode;
     D.modePills.querySelectorAll('.mode-pill').forEach(p => {
@@ -1172,13 +1402,13 @@ button{font-family:inherit}
   }
 
   const getPool = () => state.kelas === 'all'
-    ? state.soal
-    : state.soal.filter(s => String(s.kelas) === state.kelas);
+    ? state.bank
+    : state.bank.filter(s => String(s.kelas) === state.kelas);
 
   function updatePoolInfo() {
-    if (!state.soal.length) return;
+    if (!state.bank.length) return;
     const pool = getPool();
-    const label = state.kelas === 'all' ? 'Semua Kelas' : 'Kelas ' + state.kelas;
+    const label = state.kelas === 'all' ? 'semua kelas' : 'Kelas ' + state.kelas;
     const cukup = pool.length >= TOTAL_SOAL;
     D.poolInfo.classList.remove('warn', 'err');
     if (!cukup) D.poolInfo.classList.add('warn');
@@ -1187,26 +1417,20 @@ button{font-family:inherit}
       : `Hanya ${pool.length} soal untuk ${label} · butuh ${TOTAL_SOAL}`;
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  MULAI
-  // ═══════════════════════════════════════════════════════════
   async function mulai() {
     const peserta = state.pesertaDipilih;
     if (!peserta) return;
-
     if (!state.loaded) {
       showLoading('Memuat data…');
       try { await loadInitData(); }
       catch (err) { hideLoading(); toast('error', 'Gagal memuat data', err.message, 6000); return; }
       hideLoading();
     }
-
     const pool = getPool();
     if (pool.length < TOTAL_SOAL) {
       toast('error', 'Bank soal kurang', `Hanya ${pool.length} soal · butuh ${TOTAL_SOAL}`, 5000);
       return;
     }
-
     showLoading('Menyiapkan soal…');
     try {
       state.soal = shuffle(pool).slice(0, TOTAL_SOAL);
@@ -1242,9 +1466,6 @@ button{font-family:inherit}
     }
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  QGRID
-  // ═══════════════════════════════════════════════════════════
   function renderQGrid() {
     const frag = document.createDocumentFragment();
     state.soal.forEach((s, i) => {
@@ -1280,9 +1501,6 @@ button{font-family:inherit}
     D.progressFill.style.width = (answered / state.soal.length * 100) + '%';
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  RENDER SOAL
-  // ═══════════════════════════════════════════════════════════
   function renderSoal() {
     const s = state.soal[state.idx];
     const sudahDijawab = state.jawaban[state.idx] !== null;
@@ -1399,9 +1617,6 @@ button{font-family:inherit}
     if (ok) selesaiKuis();
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  TIMER
-  // ═══════════════════════════════════════════════════════════
   function startTimer() {
     clearInterval(state.timerId);
     updateTimer();
@@ -1422,9 +1637,6 @@ button{font-family:inherit}
     else if (state.sisa <= 120) D.timerCard.classList.add('warning');
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  SELESAI
-  // ═══════════════════════════════════════════════════════════
   async function selesaiKuis() {
     if (state.submitting) return;
     state.submitting = true;
@@ -1490,10 +1702,8 @@ button{font-family:inherit}
     D.statBenar.textContent = res.benar;
     D.statSalah.textContent = res.salah;
     D.scoreProgress.style.strokeDashoffset = 565.48 * (1 - res.nilai / 100);
-
     const color = res.nilai >= 80 ? '#5FAA8B' : res.nilai >= 60 ? '#5E94BC' : res.nilai < 40 ? '#D96868' : '#8B7DC4';
     D.scoreProgress.style.stroke = color;
-
     const map = [
       [90, '🏆', 'Luar biasa!'],
       [75, '🎉', 'Hebat!'],
@@ -1501,33 +1711,28 @@ button{font-family:inherit}
       [40, '💪', 'Semangat!'],
       [0,  '📚', 'Perlu belajar lagi'],
     ];
-    const [_, emoji, title] = map.find(([min]) => res.nilai >= min);
-    D.resultEmoji.textContent = emoji;
-    D.resultTitle.textContent = title;
+    const found = map.find(([min]) => res.nilai >= min);
+    D.resultEmoji.textContent = found[1];
+    D.resultTitle.textContent = found[2];
     animateNumber(D.finalScore, 0, res.nilai, 1400);
   }
 
   function renderReview() {
     const frag = document.createDocumentFragment();
     let benar = 0, salah = 0;
-
     state.soal.forEach((s, i) => {
       const jawab = state.jawaban[i];
       const isBenar = jawab === s.jawaban;
       isBenar ? benar++ : salah++;
-
       const item = document.createElement('details');
       item.className = 'review-item ' + (isBenar ? 'correct' : 'wrong');
-
       const sum = document.createElement('summary');
       sum.innerHTML = `
         <div class="review-num">${i + 1}</div>
         <div class="review-q">${escapeHtml(s.pertanyaan)}</div>`;
       item.appendChild(sum);
-
       const body = document.createElement('div');
       body.className = 'review-body';
-
       let html = `<div class="review-question-full">${escapeHtml(s.pertanyaan)}</div>`;
       html += '<div class="review-answers">';
       html += `<div class="review-answer your${isBenar ? ' correct' : ''}">
@@ -1543,16 +1748,13 @@ button{font-family:inherit}
         </div>`;
       }
       html += '</div>';
-
       html += s.pembahasan
         ? `<div class="review-pembahasan"><span class="review-pembahasan-label">💡 Pembahasan</span>${escapeHtml(s.pembahasan)}</div>`
         : `<div class="review-pembahasan empty"><span class="review-pembahasan-label">💡 Pembahasan</span>Belum ada pembahasan untuk soal ini.</div>`;
-
       body.innerHTML = html;
       item.appendChild(body);
       frag.appendChild(item);
     });
-
     D.reviewList.replaceChildren(frag);
     D.reviewCount.textContent = `${benar} benar · ${salah} salah`;
     D.reviewSection.style.display = 'block';
@@ -1589,10 +1791,24 @@ button{font-family:inherit}
     setTimeout(() => container.remove(), 5000);
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  EVENTS
-  // ═══════════════════════════════════════════════════════════
   function bindEvents() {
+    D.dropdownTrigger.addEventListener('click', e => { e.stopPropagation(); toggleDropdown(); });
+    document.addEventListener('click', e => {
+      if (!D.dropdown.contains(e.target)) closeDropdown();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      if (D.modalBackdrop.classList.contains('active')) return;
+      if (D.dropdown.classList.contains('open')) { closeDropdown(); return; }
+      if (D.setupScreen.classList.contains('active')) goToWelcome();
+    });
+    window.addEventListener('resize', closeDropdown);
+
+    D.btnLanjut.addEventListener('click', goToSetup);
+    D.btnBack.addEventListener('click', goToWelcome);
+    D.btnCancel.addEventListener('click', goToWelcome);
+    D.btnMulai.addEventListener('click', mulai);
+
     D.modePills.addEventListener('click', e => {
       const pill = e.target.closest('.mode-pill');
       if (pill) setMode(pill.dataset.mode);
@@ -1601,16 +1817,6 @@ button{font-family:inherit}
       const pill = e.target.closest('.class-pill');
       if (pill) setKelas(pill.dataset.kelas);
     });
-
-    D.dropdownTrigger.addEventListener('click', e => { e.stopPropagation(); toggleDropdown(); });
-    document.addEventListener('click', e => {
-      if (!D.dropdown.contains(e.target)) closeDropdown();
-    });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeDropdown();
-    });
-
-    D.btnStart.addEventListener('click', mulai);
 
     D.options.addEventListener('click', e => {
       const opt = e.target.closest('.option');
@@ -1638,21 +1844,7 @@ button{font-family:inherit}
         icon: 'info',
         confirmText: 'Ya, main lagi',
       });
-      if (ok) {
-        state.soal = [];
-        state.jawaban = [];
-        state.pesertaDipilih = null;
-        D.btnStart.disabled = true;
-        D.selectedAvatar.textContent = '?';
-        D.selectedAvatar.style.background = '';
-        D.selectedAvatar.classList.add('placeholder');
-        D.selectedName.textContent = 'Pilih peserta…';
-        D.selectedName.classList.add('placeholder');
-        D.selectedSchool.textContent = '';
-        D.dropdownMenu.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('selected'));
-        cache.del(DRAFT_KEY);
-        go('scr-welcome');
-      }
+      if (ok) resetToWelcome();
     });
 
     document.addEventListener('keydown', e => {
@@ -1672,18 +1864,36 @@ button{font-family:inherit}
     });
   }
 
-  // ═══════════════════════════════════════════════════════════
-  //  INIT
-  // ═══════════════════════════════════════════════════════════
+  function resetToWelcome() {
+    state.soal = [];
+    state.jawaban = [];
+    state.pesertaDipilih = null;
+    state.idx = 0;
+    state.submitting = false;
+    setMode('lomba');
+    setKelas('all');
+
+    D.btnLanjut.disabled = true;
+    D.selectedAvatar.textContent = '?';
+    D.selectedAvatar.style.background = '';
+    D.selectedAvatar.classList.add('placeholder');
+    D.selectedName.textContent = 'Pilih namamu…';
+    D.selectedName.classList.add('placeholder');
+    D.selectedSchool.textContent = '';
+    D.dropdownMenu.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('selected'));
+
+    cache.del(DRAFT_KEY);
+    go('scr-welcome');
+  }
+
   async function init() {
     bindEvents();
     setMode('lomba');
     setKelas('all');
-
     try {
       const r = await loadInitData();
-      if (r.source === 'server' && state.soal.length) {
-        toast('info', 'Data siap', `${state.soal.length} soal · ${state.peserta.length} peserta`, 2500);
+      if (r.source === 'server' && state.bank.length) {
+        toast('info', 'Data siap', `${state.bank.length} soal · ${state.peserta.length} peserta`, 2500);
       }
     } catch (err) {
       D.poolInfo.classList.add('err');
