@@ -1115,4 +1115,587 @@ button{font-family:inherit}
             <div class="dropdown-item-school">${escapeHtml(p.sekolah)}</div>
           </div>
           <svg class="dropdown-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>`;
+        btn.addEventListener('click', () => selectPeserta(p));
+        frag.appendChild(btn);
+      });
+    }
+    D.dropdownMenu.replaceChildren(frag);
+  }
+
+  function selectPeserta(p) {
+    state.pesertaDipilih = p;
+    D.selectedAvatar.textContent = p.nama[0];
+    D.selectedAvatar.style.background = colorFor(p.nama);
+    D.selectedAvatar.classList.remove('placeholder');
+    D.selectedName.textContent = p.nama;
+    D.selectedName.classList.remove('placeholder');
+    D.selectedSchool.textContent = p.sekolah;
+    D.btnStart.disabled = false;
+    closeDropdown();
+    // Highlight selected
+    D.dropdownMenu.querySelectorAll('.dropdown-item').forEach(el => {
+      el.classList.toggle('selected', el.dataset.id === p.id);
+    });
+  }
+
+  function openDropdown() {
+    D.dropdown.classList.add('open');
+    D.dropdownTrigger.setAttribute('aria-expanded', 'true');
+  }
+  function closeDropdown() {
+    D.dropdown.classList.remove('open');
+    D.dropdownTrigger.setAttribute('aria-expanded', 'false');
+  }
+  const toggleDropdown = () => D.dropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+
+  // ═══════════════════════════════════════════════════════════
+  //  MODE & KELAS
+  // ═══════════════════════════════════════════════════════════
+  function setMode(mode) {
+    state.mode = mode;
+    D.modePills.querySelectorAll('.mode-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.mode === mode);
+    });
+    D.modeHint.textContent = mode === 'lomba'
+      ? 'Pembahasan muncul setelah selesai'
+      : 'Pembahasan langsung muncul tiap soal';
+  }
+
+  function setKelas(kelas) {
+    state.kelas = String(kelas);
+    D.classPills.querySelectorAll('.class-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.kelas === state.kelas);
+    });
+    updatePoolInfo();
+  }
+
+  const getPool = () => state.kelas === 'all'
+    ? state.soal
+    : state.soal.filter(s => String(s.kelas) === state.kelas);
+
+  function updatePoolInfo() {
+    if (!state.soal.length) return;
+    const pool = getPool();
+    const label = state.kelas === 'all' ? 'Semua Kelas' : 'Kelas ' + state.kelas;
+    const cukup = pool.length >= TOTAL_SOAL;
+    D.poolInfo.classList.remove('warn', 'err');
+    if (!cukup) D.poolInfo.classList.add('warn');
+    D.poolText.innerHTML = cukup
+      ? `Tersedia <strong>${pool.length} soal</strong> untuk ${label}`
+      : `Hanya ${pool.length} soal untuk ${label} · butuh ${TOTAL_SOAL}`;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  MULAI
+  // ═══════════════════════════════════════════════════════════
+  async function mulai() {
+    const peserta = state.pesertaDipilih;
+    if (!peserta) return;
+
+    if (!state.loaded) {
+      showLoading('Memuat data…');
+      try { await loadInitData(); }
+      catch (err) { hideLoading(); toast('error', 'Gagal memuat data', err.message, 6000); return; }
+      hideLoading();
+    }
+
+    const pool = getPool();
+    if (pool.length < TOTAL_SOAL) {
+      toast('error', 'Bank soal kurang', `Hanya ${pool.length} soal · butuh ${TOTAL_SOAL}`, 5000);
+      return;
+    }
+
+    showLoading('Menyiapkan soal…');
+    try {
+      state.soal = shuffle(pool).slice(0, TOTAL_SOAL);
+      state.jawaban = new Array(TOTAL_SOAL).fill(null);
+      state.idx = 0;
+      state.sisa = WAKTU;
+      state.mulaiAt = Date.now();
+      state.submitting = false;
+
+      const draft = cache.get(DRAFT_KEY);
+      if (draft?.ids?.join(',') === state.soal.map(s => s.id).join(',')) {
+        state.jawaban = draft.jawaban;
+      }
+
+      D.studentAvatar.textContent = peserta.nama[0];
+      D.studentAvatar.style.background = colorFor(peserta.nama);
+      D.studentName.textContent = peserta.nama;
+      D.qTotal.textContent = state.soal.length;
+      D.qModeBadge.textContent = state.mode === 'lomba' ? '🏆 Lomba' : '📚 Latihan';
+      D.qModeBadge.className = 'q-mode-badge ' + state.mode;
+
+      renderQGrid();
+      renderSoal();
+      go('scr-quiz');
+      startTimer();
+      hideLoading();
+
+      const kelasLabel = state.kelas === 'all' ? 'Semua Kelas' : 'Kelas ' + state.kelas;
+      toast('success', `Halo, ${peserta.nama}!`, `${state.mode === 'lomba' ? 'Lomba' : 'Latihan'} · ${kelasLabel}`, 3000);
+    } catch (err) {
+      hideLoading();
+      toast('error', 'Gagal', err.message, 5000);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  QGRID
+  // ═══════════════════════════════════════════════════════════
+  function renderQGrid() {
+    const frag = document.createDocumentFragment();
+    state.soal.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'qgrid-btn';
+      btn.textContent = i + 1;
+      btn.dataset.idx = i;
+      btn.setAttribute('aria-label', `Soal ${i + 1}`);
+      btn.addEventListener('click', () => { state.idx = i; renderSoal(); });
+      frag.appendChild(btn);
+    });
+    D.qgrid.replaceChildren(frag);
+  }
+
+  function updateQGrid() {
+    const btns = D.qgrid.children;
+    for (let i = 0; i < btns.length; i++) {
+      const s = state.soal[i], j = state.jawaban[i];
+      btns[i].classList.toggle('current', i === state.idx);
+      btns[i].classList.remove('answered', 'correct-mark', 'wrong-mark');
+      if (j !== null) {
+        if (state.mode === 'latihan' && s.jawaban) {
+          btns[i].classList.add(j === s.jawaban ? 'correct-mark' : 'wrong-mark');
+        } else {
+          btns[i].classList.add('answered');
+        }
+      }
+    }
+    D.qgrid.children[state.idx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    const answered = state.jawaban.filter(j => j !== null).length;
+    D.answeredCount.textContent = answered;
+    D.progressFill.style.width = (answered / state.soal.length * 100) + '%';
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  RENDER SOAL
+  // ═══════════════════════════════════════════════════════════
+  function renderSoal() {
+    const s = state.soal[state.idx];
+    const sudahDijawab = state.jawaban[state.idx] !== null;
+
+    D.qNum.textContent = state.idx + 1;
+    D.questionText.textContent = s.pertanyaan;
+    D.questionCard.classList.remove('question-anim');
+    void D.questionCard.offsetWidth;
+    D.questionCard.classList.add('question-anim');
+
+    const frag = document.createDocumentFragment();
+    ['A','B','C','D'].forEach(letter => {
+      const div = document.createElement('div');
+      div.className = 'option';
+      div.dataset.letter = letter;
+      div.setAttribute('role', 'button');
+      div.setAttribute('tabindex', '0');
+
+      if (sudahDijawab) {
+        if (state.mode === 'latihan') {
+          div.classList.add('disabled');
+          if (letter === s.jawaban) div.classList.add('correct');
+          if (letter === state.jawaban[state.idx] && letter !== s.jawaban) div.classList.add('wrong');
+        } else if (letter === state.jawaban[state.idx]) {
+          div.classList.add('selected');
+        }
+      }
+
+      const badge = document.createElement('div');
+      badge.className = 'option-letter';
+      badge.textContent = letter;
+
+      const txt = document.createElement('div');
+      txt.className = 'option-text';
+      txt.textContent = s.opsi[letter];
+
+      div.append(badge, txt);
+      frag.appendChild(div);
+    });
+    D.options.replaceChildren(frag);
+
+    if (state.mode === 'latihan' && sudahDijawab) {
+      renderFeedback(s, state.jawaban[state.idx]);
+    } else {
+      D.feedbackBox.classList.remove('show', 'correct', 'wrong');
+    }
+
+    D.btnPrev.disabled = state.idx === 0;
+    D.btnNext.disabled = state.mode === 'latihan' && !sudahDijawab && state.idx < state.soal.length - 1;
+    D.btnNext.innerHTML = state.idx === state.soal.length - 1
+      ? `Selesai <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg>`
+      : `Selanjutnya <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="9 18 15 12 9 6"/></svg>`;
+
+    updateQGrid();
+  }
+
+  function renderFeedback(s, pilihan) {
+    const benar = pilihan === s.jawaban;
+    D.feedbackBox.classList.remove('correct', 'wrong');
+    D.feedbackBox.classList.add('show', benar ? 'correct' : 'wrong');
+
+    const icon = benar
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+
+    D.feedbackHead.innerHTML = icon + (benar ? 'Benar!' : 'Kurang tepat');
+    D.feedbackAnswer.innerHTML = benar
+      ? `Jawabanmu: <strong>${escapeHtml(pilihan)}. ${escapeHtml(s.opsi[pilihan])}</strong>`
+      : `Jawabanmu: <strong>${escapeHtml(pilihan)}. ${escapeHtml(s.opsi[pilihan])}</strong> · Jawaban benar: <strong>${escapeHtml(s.jawaban)}. ${escapeHtml(s.opsi[s.jawaban] || '')}</strong>`;
+
+    D.feedbackPembahasan.innerHTML = s.pembahasan
+      ? `<strong>💡 Pembahasan</strong>${escapeHtml(s.pembahasan)}`
+      : `<strong>💡 Pembahasan</strong><em>Belum ada pembahasan untuk soal ini.</em>`;
+  }
+
+  function pilihJawaban(letter) {
+    if (state.mode === 'latihan' && state.jawaban[state.idx] !== null) return;
+    state.jawaban[state.idx] = letter;
+    if (state.mode === 'latihan') {
+      renderSoal();
+    } else {
+      D.options.querySelectorAll('.option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.letter === letter);
+      });
+    }
+    cache.set(DRAFT_KEY, {
+      ids: state.soal.map(s => s.id),
+      jawaban: state.jawaban,
+    });
+    updateQGrid();
+  }
+
+  async function nextSoal() {
+    if (state.mode === 'latihan' && state.jawaban[state.idx] === null) {
+      toast('warning', 'Pilih jawaban dulu', '', 2000);
+      return;
+    }
+    if (state.idx < state.soal.length - 1) { state.idx++; renderSoal(); }
+    else promptFinish();
+  }
+  function prevSoal() { if (state.idx > 0) { state.idx--; renderSoal(); } }
+
+  async function promptFinish() {
+    const belum = state.jawaban.filter(j => j === null).length;
+    const ok = await confirmModal({
+      title: belum ? 'Masih ada yang kosong' : 'Selesaikan ujian?',
+      msg: belum
+        ? `Kamu masih punya ${belum} soal yang belum dijawab. Tetap selesaikan?`
+        : 'Setelah selesai, jawaban tidak bisa diubah lagi.',
+      icon: belum ? 'warn' : 'info',
+      confirmText: belum ? 'Ya, selesaikan' : 'Selesai',
+      cancelText: 'Cek lagi',
+    });
+    if (ok) selesaiKuis();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  TIMER
+  // ═══════════════════════════════════════════════════════════
+  function startTimer() {
+    clearInterval(state.timerId);
+    updateTimer();
+    state.timerId = setInterval(() => {
+      state.sisa--;
+      updateTimer();
+      if (state.sisa <= 0) {
+        clearInterval(state.timerId);
+        toast('warning', 'Waktu habis!', 'Jawaban dikumpulkan otomatis.', 5000);
+        selesaiKuis();
+      }
+    }, 1000);
+  }
+  function updateTimer() {
+    D.timerText.textContent = fmtTime(state.sisa);
+    D.timerCard.classList.remove('warning', 'danger');
+    if (state.sisa <= 30) D.timerCard.classList.add('danger');
+    else if (state.sisa <= 120) D.timerCard.classList.add('warning');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  SELESAI
+  // ═══════════════════════════════════════════════════════════
+  async function selesaiKuis() {
+    if (state.submitting) return;
+    state.submitting = true;
+    clearInterval(state.timerId);
+
+    const durasi = Math.min(WAKTU, Math.floor((Date.now() - state.mulaiAt) / 1000));
+    const p = state.pesertaDipilih;
+
+    const payload = {
+      nama: p.nama,
+      sekolah: p.sekolah,
+      totalSoal: TOTAL_SOAL,
+      durasi: fmtTime(durasi),
+      mode: state.mode,
+      jawaban: state.soal.map((s, i) => ({ id: s.id, jawaban: state.jawaban[i] })),
+    };
+
+    D.resultPeserta.textContent = `${p.nama} · ${p.sekolah}`;
+    D.finalScore.textContent = '0';
+    D.scoreProgress.style.strokeDashoffset = 565.48;
+    D.statBenar.textContent = '—';
+    D.statSalah.textContent = '—';
+    D.statWaktu.textContent = fmtTime(durasi);
+    D.syncStatus.className = 'sync-status';
+    D.syncStatus.textContent = 'Mengirim jawaban…';
+    D.btnRestart.disabled = true;
+    D.resultEmoji.textContent = '⏳';
+    D.resultTitle.textContent = 'Menghitung…';
+    D.reviewSection.style.display = 'none';
+
+    go('scr-result');
+    cache.del(DRAFT_KEY);
+
+    try {
+      const res = await jsonp('submit', { data: JSON.stringify(payload) });
+      if (!res || res.status !== 'ok') throw new Error(res?.message || 'Server error');
+      tampilkanHasil(res);
+      renderReview();
+      D.syncStatus.className = 'sync-status ok';
+      D.syncStatus.textContent = 'Tersimpan di server';
+      toast('success', 'Nilai tersimpan!', `${p.nama} mendapat ${res.nilai} poin.`, 5000);
+      if (res.nilai >= 60) fireConfetti(res.nilai >= 80 ? 70 : 40);
+    } catch (err) {
+      hitungLokal();
+      renderReview();
+      D.syncStatus.className = 'sync-status err';
+      D.syncStatus.textContent = 'Gagal kirim — hasil dihitung lokal';
+      toast('error', 'Gagal kirim jawaban', err.message, 8000);
+    } finally {
+      D.btnRestart.disabled = false;
+      state.submitting = false;
+    }
+  }
+
+  function hitungLokal() {
+    let benar = 0;
+    state.soal.forEach((s, i) => { if (state.jawaban[i] === s.jawaban) benar++; });
+    const nilai = Math.round(benar / TOTAL_SOAL * 100);
+    tampilkanHasil({ benar, salah: TOTAL_SOAL - benar, nilai, totalSoal: TOTAL_SOAL });
+  }
+
+  function tampilkanHasil(res) {
+    D.statBenar.textContent = res.benar;
+    D.statSalah.textContent = res.salah;
+    D.scoreProgress.style.strokeDashoffset = 565.48 * (1 - res.nilai / 100);
+
+    const color = res.nilai >= 80 ? '#5FAA8B' : res.nilai >= 60 ? '#5E94BC' : res.nilai < 40 ? '#D96868' : '#8B7DC4';
+    D.scoreProgress.style.stroke = color;
+
+    const map = [
+      [90, '🏆', 'Luar biasa!'],
+      [75, '🎉', 'Hebat!'],
+      [60, '👍', 'Bagus!'],
+      [40, '💪', 'Semangat!'],
+      [0,  '📚', 'Perlu belajar lagi'],
+    ];
+    const [_, emoji, title] = map.find(([min]) => res.nilai >= min);
+    D.resultEmoji.textContent = emoji;
+    D.resultTitle.textContent = title;
+    animateNumber(D.finalScore, 0, res.nilai, 1400);
+  }
+
+  function renderReview() {
+    const frag = document.createDocumentFragment();
+    let benar = 0, salah = 0;
+
+    state.soal.forEach((s, i) => {
+      const jawab = state.jawaban[i];
+      const isBenar = jawab === s.jawaban;
+      isBenar ? benar++ : salah++;
+
+      const item = document.createElement('details');
+      item.className = 'review-item ' + (isBenar ? 'correct' : 'wrong');
+
+      const sum = document.createElement('summary');
+      sum.innerHTML = `
+        <div class="review-num">${i + 1}</div>
+        <div class="review-q">${escapeHtml(s.pertanyaan)}</div>`;
+      item.appendChild(sum);
+
+      const body = document.createElement('div');
+      body.className = 'review-body';
+
+      let html = `<div class="review-question-full">${escapeHtml(s.pertanyaan)}</div>`;
+      html += '<div class="review-answers">';
+      html += `<div class="review-answer your${isBenar ? ' correct' : ''}">
+        <span class="review-answer-label">Jawabanmu</span>
+        <span class="review-answer-text">${jawab
+          ? `<strong>${escapeHtml(jawab)}.</strong> ${escapeHtml(s.opsi[jawab] || '')}`
+          : '<em>(Tidak dijawab)</em>'}</span>
+      </div>`;
+      if (!isBenar) {
+        html += `<div class="review-answer correct">
+          <span class="review-answer-label">Jawaban benar</span>
+          <span class="review-answer-text"><strong>${escapeHtml(s.jawaban)}.</strong> ${escapeHtml(s.opsi[s.jawaban] || '')}</span>
+        </div>`;
+      }
+      html += '</div>';
+
+      html += s.pembahasan
+        ? `<div class="review-pembahasan"><span class="review-pembahasan-label">💡 Pembahasan</span>${escapeHtml(s.pembahasan)}</div>`
+        : `<div class="review-pembahasan empty"><span class="review-pembahasan-label">💡 Pembahasan</span>Belum ada pembahasan untuk soal ini.</div>`;
+
+      body.innerHTML = html;
+      item.appendChild(body);
+      frag.appendChild(item);
+    });
+
+    D.reviewList.replaceChildren(frag);
+    D.reviewCount.textContent = `${benar} benar · ${salah} salah`;
+    D.reviewSection.style.display = 'block';
+  }
+
+  function animateNumber(el, from, to, dur) {
+    const start = performance.now();
+    const step = now => {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(from + (to - from) * eased);
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function fireConfetti(count = 50) {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    document.body.appendChild(container);
+    const shapes = ['50%', '0%', '20%'];
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + '%';
+      c.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      c.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)];
+      c.style.width = (6 + Math.random() * 8) + 'px';
+      c.style.height = (6 + Math.random() * 8) + 'px';
+      c.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+      c.style.animationDelay = (Math.random() * .5) + 's';
+      container.appendChild(c);
+    }
+    setTimeout(() => container.remove(), 5000);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  EVENTS
+  // ═══════════════════════════════════════════════════════════
+  function bindEvents() {
+    D.modePills.addEventListener('click', e => {
+      const pill = e.target.closest('.mode-pill');
+      if (pill) setMode(pill.dataset.mode);
+    });
+    D.classPills.addEventListener('click', e => {
+      const pill = e.target.closest('.class-pill');
+      if (pill) setKelas(pill.dataset.kelas);
+    });
+
+    D.dropdownTrigger.addEventListener('click', e => { e.stopPropagation(); toggleDropdown(); });
+    document.addEventListener('click', e => {
+      if (!D.dropdown.contains(e.target)) closeDropdown();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeDropdown();
+    });
+
+    D.btnStart.addEventListener('click', mulai);
+
+    D.options.addEventListener('click', e => {
+      const opt = e.target.closest('.option');
+      if (opt && !opt.classList.contains('disabled')) pilihJawaban(opt.dataset.letter);
+    });
+    D.options.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const opt = e.target.closest('.option');
+        if (opt && !opt.classList.contains('disabled')) {
+          e.preventDefault();
+          pilihJawaban(opt.dataset.letter);
+        }
+      }
+    });
+
+    D.btnNext.addEventListener('click', nextSoal);
+    D.btnPrev.addEventListener('click', prevSoal);
+    D.btnFinish.addEventListener('click', promptFinish);
+    D.btnFinishMobile.addEventListener('click', promptFinish);
+
+    D.btnRestart.addEventListener('click', async () => {
+      const ok = await confirmModal({
+        title: 'Main lagi?',
+        msg: 'Kembali ke halaman awal. Soal akan diacak ulang.',
+        icon: 'info',
+        confirmText: 'Ya, main lagi',
+      });
+      if (ok) {
+        state.soal = [];
+        state.jawaban = [];
+        state.pesertaDipilih = null;
+        D.btnStart.disabled = true;
+        D.selectedAvatar.textContent = '?';
+        D.selectedAvatar.style.background = '';
+        D.selectedAvatar.classList.add('placeholder');
+        D.selectedName.textContent = 'Pilih peserta…';
+        D.selectedName.classList.add('placeholder');
+        D.selectedSchool.textContent = '';
+        D.dropdownMenu.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('selected'));
+        cache.del(DRAFT_KEY);
+        go('scr-welcome');
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (!D.quizScreen.classList.contains('active')) return;
+      if (D.modalBackdrop.classList.contains('active')) return;
+      const k = e.key.toUpperCase();
+      if (['A','B','C','D'].includes(k)) { e.preventDefault(); pilihJawaban(k); }
+      else if (e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); nextSoal(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSoal(); }
+    });
+
+    window.addEventListener('beforeunload', e => {
+      if (D.quizScreen.classList.contains('active') && !state.submitting) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  INIT
+  // ═══════════════════════════════════════════════════════════
+  async function init() {
+    bindEvents();
+    setMode('lomba');
+    setKelas('all');
+
+    try {
+      const r = await loadInitData();
+      if (r.source === 'server' && state.soal.length) {
+        toast('info', 'Data siap', `${state.soal.length} soal · ${state.peserta.length} peserta`, 2500);
+      }
+    } catch (err) {
+      D.poolInfo.classList.add('err');
+      D.poolText.textContent = '⚠️ Gagal memuat data. Coba refresh.';
+      toast('error', 'Gagal memuat data', err.message, 6000);
+    }
+  }
+
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', init)
+    : init();
+})();
+</script>
+</body>
+</html>
